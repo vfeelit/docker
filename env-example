@@ -1,0 +1,195 @@
+###########################################################
+###################### General Setup ######################
+###########################################################
+
+### Paths #################################################
+
+# Point to the path of your applications code on your host
+CODE_PATH_HOST=..
+
+# Point to where the `CODE_PATH_HOST` should be in the container
+CODE_PATH_CONTAINER=/var/www
+
+# You may add flags to the path `:cached`, `:delegated`. When using Docker Sync add `:nocopy`
+CODE_CONTAINER_FLAG=:cached
+
+# Choose storage path on your machine. For all storage systems
+DATA_PATH_HOST=./data
+
+
+### Drivers ################################################
+
+# All volumes driver
+VOLUMES_DRIVER=local
+
+# All Networks driver
+NETWORKS_DRIVER=bridge
+
+
+### Docker compose files ##################################
+
+# Select which docker-compose files to include. If using docker-sync append `:docker-compose.sync.yml` at the end
+COMPOSE_FILE=docker-compose.yml
+
+# Change the separator from : to ; on Windows
+COMPOSE_PATH_SEPARATOR=:
+
+# Define the prefix of container names.
+COMPOSE_PROJECT_NAME=
+
+
+### Docker Host IP ########################################
+
+# Enter your Docker Host IP (will be appended to /etc/hosts). Default is `10.0.75.1`
+DOCKER_HOST_IP=10.0.75.1
+
+### Remote Interpreter ####################################
+
+# Choose a Remote Interpreter entry matching name. Default is `default`
+PHP_IDE_CONFIG=serverName=default
+
+### Windows Path ##########################################
+
+# A fix for Windows users, to ensure the application path works
+COMPOSE_CONVERT_WINDOWS_PATHS=1
+
+### Environment ###########################################
+
+# If you need to change the sources (i.e. to China), set CHANGE_SOURCE to true
+CHANGE_SOURCE=true
+
+
+### Docker Sync ###########################################
+
+# If you are using Docker Sync. For `osx` use 'native_osx', for `windows` use 'unison', for `linux` docker-sync is not required
+DOCKER_SYNC_STRATEGY=native_osx
+
+
+###########################################################
+################ Containers Customization #################
+###########################################################
+
+### UBUNTU #############################################
+
+UBUNTU_PHP_VERSION=7.3
+UBUNTU_COMPOSER_GLOBAL_INSTALL=true
+UBUNTU_COMPOSER_AUTH=false
+UBUNTU_COMPOSER_REPO_PACKAGIST=https://packagist.laravel-china.org
+UBUNTU_PUID=1000
+UBUNTU_PGID=1000
+UBUNTU_CHROME_DRIVER_VERSION=2.42
+UBUNTU_TIMEZONE=UTC
+UBUNTU_SSH_PORT=2222
+UBUNTU_INSTALL_NODE=true
+UBUNTU_NODE_VERSION=node
+UBUNTU_NPM_REGISTRY=https://registry.npm.taobao.org
+UBUNTU_INSTALL_YARN=false
+UBUNTU_YARN_VERSION=latest
+UBUNTU_INSTALL_NPM_GULP=false
+UBUNTU_INSTALL_NPM_BOWER=false
+UBUNTU_INSTALL_NPM_VUE_CLI=true
+UBUNTU_INSTALL_NPM_ANGULAR_CLI=false
+UBUNTU_INSTALL_PHPREDIS=true
+UBUNTU_INSTALL_WORKSPACE_SSH=false
+UBUNTU_INSTALL_XDEBUG=false
+UBUNTU_INSTALL_PHPDBG=false
+UBUNTU_INSTALL_SSH2=false
+UBUNTU_INSTALL_LDAP=false
+UBUNTU_INSTALL_GMP=false
+UBUNTU_INSTALL_SOAP=false
+UBUNTU_INSTALL_XSL=true
+UBUNTU_INSTALL_IMAP=false
+UBUNTU_INSTALL_MONGO=false
+UBUNTU_INSTALL_AMQP=false
+UBUNTU_INSTALL_V8JS=false
+UBUNTU_INSTALL_LARAVEL_ENVOY=false
+UBUNTU_INSTALL_MC=false
+UBUNTU_INSTALL_PYTHON=false
+UBUNTU_INSTALL_IMAGE_OPTIMIZERS=false
+UBUNTU_INSTALL_IMAGEMAGICK=false
+UBUNTU_INSTALL_TERRAFORM=false
+UBUNTU_INSTALL_DUSK_DEPS=false
+UBUNTU_INSTALL_PG_CLIENT=false
+UBUNTU_INSTALL_SWOOLE=false
+UBUNTU_INSTALL_LIBPNG=false
+UBUNTU_INSTALL_IONCUBE=false
+UBUNTU_INSTALL_MYSQL_CLIENT=true
+UBUNTU_INSTALL_INOTIFY=true
+UBUNTU_INSTALL_FSWATCH=true
+UBUNTU_INSTALL_FFMPEG=false
+
+
+### NGINX #################################################
+
+NGINX_HOST_HTTP_PORT=80
+NGINX_HOST_HTTPS_PORT=443
+NGINX_HOST_LOG_PATH=./logs/nginx/
+NGINX_SITES_PATH=./nginx/sites/
+NGINX_SSL_PATH=./nginx/ssl/
+
+
+### MYSQL #################################################
+
+MYSQL_VERSION=5.7
+MYSQL_DATABASE=default
+MYSQL_USER=default
+MYSQL_PASSWORD=secret
+MYSQL_PORT=3306
+MYSQL_ROOT_PASSWORD=root
+MYSQL_ENTRYPOINT_INITDB=./mysql/docker-entrypoint-initdb.d
+
+
+### REDIS #################################################
+REDIS_VERSION=4
+REDIS_PORT=6379
+
+
+### BEANSTALKD ############################################
+
+BEANSTALKD_HOST_PORT=11300
+
+
+### PHP_CLI ############################################
+PHP_CLI_VERSION=7.3
+PHP_CLI_PUID=1000
+PHP_CLI_PGID=1000
+PHP_CLI_INSTALL_PGSQL=false
+PHP_CLI_INSTALL_BCMATH=false
+PHP_CLI_INSTALL_SOAP=false
+PHP_CLI_INSTALL_ZIP_ARCHIVE=false
+PHP_CLI_INSTALL_MYSQL_CLIENT=false
+PHP_CLI_INSTALL_AMQP=false
+
+
+### PHP_FPM ###############################################
+PHP_FPM_VERSION=7.3
+PHP_FPM_INSTALL_BCMATH=true
+PHP_FPM_INSTALL_MYSQLI=true
+PHP_FPM_INSTALL_INTL=true
+PHP_FPM_INSTALL_IMAGEMAGICK=true
+PHP_FPM_INSTALL_OPCACHE=true
+PHP_FPM_INSTALL_IMAGE_OPTIMIZERS=true
+PHP_FPM_INSTALL_PHPREDIS=true
+PHP_FPM_INSTALL_XDEBUG=false
+PHP_FPM_INSTALL_PHPDBG=false
+PHP_FPM_INSTALL_IMAP=false
+PHP_FPM_INSTALL_MONGO=false
+PHP_FPM_INSTALL_AMQP=false
+PHP_FPM_INSTALL_SSH2=false
+PHP_FPM_INSTALL_SOAP=false
+PHP_FPM_INSTALL_XSL=true
+PHP_FPM_INSTALL_GMP=false
+PHP_FPM_INSTALL_EXIF=false
+PHP_FPM_INSTALL_PGSQL=false
+PHP_FPM_INSTALL_LDAP=false
+PHP_FPM_INSTALL_PG_CLIENT=false
+PHP_FPM_INSTALL_PCNTL=true
+PHP_FPM_INSTALL_CALENDAR=false
+PHP_FPM_INSTALL_FAKETIME=false
+PHP_FPM_INSTALL_IONCUBE=false
+PHP_FPM_FAKETIME=-0
+PHP_FPM_INSTALL_APCU=false
+PHP_FPM_INSTALL_YAML=false
+PHP_FPM_INSTALL_ADDITIONAL_LOCALES=false
+PHP_FPM_INSTALL_MYSQL_CLIENT=false
+PHP_FPM_ADDITIONAL_LOCALES="es_ES.UTF-8 fr_FR.UTF-8"

@@ -1,0 +1,196 @@
+version: '3'
+
+networks:
+  frontend:
+    driver: ${NETWORKS_DRIVER}
+  backend:
+    driver: ${NETWORKS_DRIVER}
+
+volumes:
+  mysql:
+    driver: ${VOLUMES_DRIVER}
+  redis:
+    driver: ${VOLUMES_DRIVER}
+
+services:
+
+### Ubuntu ##################################
+    ubuntu:
+      build:
+        context: ./ubuntu
+        args:
+          - PHP_VERSION=${UBUNTU_PHP_VERSION}
+          - INSTALL_XDEBUG=${UBUNTU_INSTALL_XDEBUG}
+          - INSTALL_PHPDBG=${UBUNTU_INSTALL_PHPDBG}
+          - INSTALL_SSH2=${UBUNTU_INSTALL_SSH2}
+          - INSTALL_GMP=${UBUNTU_INSTALL_GMP}
+          - INSTALL_SOAP=${UBUNTU_INSTALL_SOAP}
+          - INSTALL_XSL=${UBUNTU_INSTALL_XSL}
+          - INSTALL_LDAP=${UBUNTU_INSTALL_LDAP}
+          - INSTALL_IMAP=${UBUNTU_INSTALL_IMAP}
+          - INSTALL_MONGO=${UBUNTU_INSTALL_MONGO}
+          - INSTALL_AMQP=${UBUNTU_INSTALL_AMQP}
+          - INSTALL_PHPREDIS=${UBUNTU_INSTALL_PHPREDIS}
+          - INSTALL_NODE=${UBUNTU_INSTALL_NODE}
+          - NPM_REGISTRY=${UBUNTU_NPM_REGISTRY}
+          - INSTALL_YARN=${UBUNTU_INSTALL_YARN}
+          - INSTALL_NPM_GULP=${UBUNTU_INSTALL_NPM_GULP}
+          - INSTALL_NPM_BOWER=${UBUNTU_INSTALL_NPM_BOWER}
+          - INSTALL_NPM_VUE_CLI=${UBUNTU_INSTALL_NPM_VUE_CLI}
+          - INSTALL_NPM_ANGULAR_CLI=${UBUNTU_INSTALL_NPM_ANGULAR_CLI}
+          - INSTALL_V8JS=${UBUNTU_INSTALL_V8JS}
+          - COMPOSER_GLOBAL_INSTALL=${UBUNTU_COMPOSER_GLOBAL_INSTALL}
+          - COMPOSER_AUTH=${UBUNTU_COMPOSER_AUTH}
+          - COMPOSER_REPO_PACKAGIST=${UBUNTU_COMPOSER_REPO_PACKAGIST}
+          - INSTALL_WORKSPACE_SSH=${UBUNTU_INSTALL_WORKSPACE_SSH}
+          - INSTALL_LARAVEL_ENVOY=${UBUNTU_INSTALL_LARAVEL_ENVOY}
+          - INSTALL_MC=${UBUNTU_INSTALL_MC}
+          - INSTALL_PYTHON=${UBUNTU_INSTALL_PYTHON}
+          - INSTALL_IMAGE_OPTIMIZERS=${UBUNTU_INSTALL_IMAGE_OPTIMIZERS}
+          - INSTALL_IMAGEMAGICK=${UBUNTU_INSTALL_IMAGEMAGICK}
+          - INSTALL_TERRAFORM=${UBUNTU_INSTALL_TERRAFORM}
+          - INSTALL_DUSK_DEPS=${UBUNTU_INSTALL_DUSK_DEPS}
+          - INSTALL_PG_CLIENT=${UBUNTU_INSTALL_PG_CLIENT}
+          - INSTALL_SWOOLE=${UBUNTU_INSTALL_SWOOLE}
+          - INSTALL_LIBPNG=${UBUNTU_INSTALL_LIBPNG}
+          - INSTALL_IONCUBE=${UBUNTU_INSTALL_IONCUBE}
+          - INSTALL_MYSQL_CLIENT=${UBUNTU_INSTALL_MYSQL_CLIENT}
+          - PUID=${UBUNTU_PUID}
+          - PGID=${UBUNTU_PGID}
+          - CHROME_DRIVER_VERSION=${UBUNTU_CHROME_DRIVER_VERSION}
+          - NODE_VERSION=${UBUNTU_NODE_VERSION}
+          - YARN_VERSION=${UBUNTU_YARN_VERSION}
+          - TZ=${UBUNTU_TIMEZONE}
+          - INSTALL_FFMPEG=${UBUNTU_INSTALL_FFMPEG}
+      volumes:
+        - ${CODE_PATH_HOST}:${CODE_PATH_CONTAINER}${CODE_CONTAINER_FLAG}
+      ports:
+        - "${UBUNTU_SSH_PORT}:22"
+      tty: true
+      environment:
+        - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+      networks:
+        - frontend
+        - backend
+
+### NGINX Server #########################################
+    nginx:
+      build:
+        context: ./nginx
+        args:
+          - CHANGE_SOURCE=${CHANGE_SOURCE}
+      volumes:
+        - ${CODE_PATH_HOST}:${CODE_PATH_CONTAINER}${CODE_CONTAINER_FLAG}
+        - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+        - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+        - ${NGINX_SSL_PATH}:/etc/nginx/ssl
+      ports:
+        - "${NGINX_HOST_HTTP_PORT}:80"
+        - "${NGINX_HOST_HTTPS_PORT}:443"
+      networks:
+        - frontend
+        - backend
+
+### MySQL ################################################
+    mysql:
+      build:
+        context: ./mysql
+        args:
+          - MYSQL_VERSION=${MYSQL_VERSION}
+      environment:
+        - MYSQL_DATABASE=${MYSQL_DATABASE}
+        - MYSQL_USER=${MYSQL_USER}
+        - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+        - TZ=${UBUNTU_TIMEZONE}
+      volumes:
+        - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
+        - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+      restart: always
+      ports:
+        - "${MYSQL_PORT}:3306"
+      networks:
+        - backend
+
+### Redis ################################################
+    redis:
+      build:
+        context: ./redis
+        args:
+          - REDIS_VERSION=${REDIS_VERSION}
+      volumes:
+        - ${DATA_PATH_HOST}/redis:/data
+      restart: always
+      ports:
+        - "${REDIS_PORT}:6379"
+      networks:
+        - backend
+
+### Beanstalkd ###########################################
+    beanstalkd:
+      build:
+         context: ./beanstalkd
+      ports:
+        - "${BEANSTALKD_HOST_PORT}:11300"
+      privileged: true
+      restart: always
+      networks:
+        - backend
+
+### PHP CLI ############################################
+    php-cli:
+      build:
+        context: ./php/cli
+        args:
+          - PHP_VERSION=${PHP_CLI_VERSION}
+      volumes:
+        - ${CODE_PATH_HOST}:${CODE_PATH_CONTAINER}${CODE_CONTAINER_FLAG}
+        - ./php/cli/supervisord.conf:/etc/supervisord.conf
+        - ./php/cli/supervisord.d:/etc/supervisord.d
+      networks:
+        - backend
+
+### PHP-FPM ##############################################
+    php-fpm:
+      build:
+        context: ./php/fpm
+        args:
+          - PHP_VERSION=${PHP_FPM_VERSION}
+          - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
+          - INSTALL_PHPDBG=${PHP_FPM_INSTALL_PHPDBG}
+          - INSTALL_SSH2=${PHP_FPM_INSTALL_SSH2}
+          - INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}
+          - INSTALL_XSL=${PHP_FPM_INSTALL_XSL}
+          - INSTALL_IMAP=${PHP_FPM_INSTALL_IMAP}
+          - INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}
+          - INSTALL_AMQP=${PHP_FPM_INSTALL_AMQP}
+          - INSTALL_BCMATH=${PHP_FPM_INSTALL_BCMATH}
+          - INSTALL_GMP=${PHP_FPM_INSTALL_GMP}
+          - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
+          - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
+          - INSTALL_EXIF=${PHP_FPM_INSTALL_EXIF}
+          - INSTALL_MYSQLI=${PHP_FPM_INSTALL_MYSQLI}
+          - INSTALL_PGSQL=${PHP_FPM_INSTALL_PGSQL}
+          - INSTALL_PG_CLIENT=${PHP_FPM_INSTALL_PG_CLIENT}
+          - INSTALL_INTL=${PHP_FPM_INSTALL_INTL}
+          - INSTALL_LDAP=${PHP_FPM_INSTALL_LDAP}
+          - INSTALL_IMAGE_OPTIMIZERS=${PHP_FPM_INSTALL_IMAGE_OPTIMIZERS}
+          - INSTALL_IMAGEMAGICK=${PHP_FPM_INSTALL_IMAGEMAGICK}
+          - INSTALL_CALENDAR=${PHP_FPM_INSTALL_CALENDAR}
+          - INSTALL_FAKETIME=${PHP_FPM_INSTALL_FAKETIME}
+          - INSTALL_IONCUBE=${PHP_FPM_INSTALL_IONCUBE}
+          - INSTALL_APCU=${PHP_FPM_INSTALL_APCU}
+          - INSTALL_YAML=${PHP_FPM_INSTALL_YAML}
+          - INSTALL_ADDITIONAL_LOCALES=${PHP_FPM_INSTALL_ADDITIONAL_LOCALES}
+          - INSTALL_MYSQL_CLIENT=${PHP_FPM_INSTALL_MYSQL_CLIENT}
+          - ADDITIONAL_LOCALES=${PHP_FPM_ADDITIONAL_LOCALES}
+      volumes:
+        - ./php/fpm/php${PHP_FPM_VERSION}.ini:/usr/local/etc/php/php.ini
+        - ${CODE_PATH_HOST}:${CODE_PATH_CONTAINER}${CODE_CONTAINER_FLAG}
+      expose:
+        - "9000"
+      environment:
+        - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+        - FAKETIME=${PHP_FPM_FAKETIME}
+      networks:
+        - backend
